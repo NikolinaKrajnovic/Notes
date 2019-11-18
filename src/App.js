@@ -1,24 +1,42 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useState} from 'react';
 import './App.css';
+import NoteList from './NoteList';
+
+import Modal from "./modal";
+import axios from 'axios';
+
 
 function App() {
+  const [show, setShow] = useState(false);
+  const[notes, setNote] = useState([]);
+
+  const openModal = () => setShow(true);
+  const closeModal = () => setShow(false);
+  
+  const addNote = note => {
+    axios
+    .post("http://localhost:8000/notes",{id: note.id,
+    title: note.title,
+    body: note.body,
+    author: note.author,
+    date: new Date().toDateString() })
+    .then(response=>{
+      console.log(response)
+    })
+    .catch(error=>{console.error(error.message)})
+    setNote([...notes, note])
+  }
+
   return (
+    <div>
+
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {!show && <button className="button-secondary" onClick={openModal}>Add new note</button>}
+      <Modal closeModal={closeModal} show={show}  addNote={addNote}/>
+    </div>
+
+    <div><NoteList/></div>
+
     </div>
   );
 }
